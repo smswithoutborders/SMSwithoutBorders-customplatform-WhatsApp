@@ -3,18 +3,55 @@
 import logging
 
 from flask import Blueprint, request
-
 from werkzeug.exceptions import BadRequest
-
 from src.controllers.messages import send_text, send_template, receive_message
 
 v1 = Blueprint(name="v1", import_name=__name__, url_prefix="/v1")
 
 logger = logging.getLogger(__name__)
 
+# Security headers
+SECURITY_HEADERS = {
+    "Content-Security-Policy": "default-src 'self'",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Permissions-Policy": "geolocation=(), camera=(), microphone=()",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Cache-Control": "no-cache",
+}
+
+
+@v1.after_request
+def add_security_headers(response):
+    """
+    Add security headers to the API response.
+
+    :param response: The API response object.
+    :type response: flask.Response
+
+    :return: The updated API response object with added security headers.
+    :rtype: flask.Response
+    """
+    for header, value in SECURITY_HEADERS.items():
+        response.headers[header] = value
+    return response
+
 
 @v1.route(rule="/send/<string:message_type>", methods=["POST"])
 def send_message(message_type):
+    """
+    Send a message of the specified type.
+
+    :param message_type: str - Type of the message to send. Possible values: "text" or "template".
+
+    :return: A tuple containing the response and the HTTP status code.
+    :rtype: tuple
+
+    :raises BadRequest: If the required parameters are missing from the request data.
+    :raises Exception: If an unexpected error occurs.
+    """
     try:
         data = request.get_json()
 
@@ -76,6 +113,15 @@ def send_message(message_type):
 
 @v1.route(rule="/receive", methods=["POST"])
 def receive_web_hook():
+    """
+    Receive a webhook data.
+
+    :return: A tuple containing an empty response and the HTTP status code.
+    :rtype: tuple
+
+    :raises BadRequest: If the request data is invalid.
+    :raises Exception: If an unexpected error occurs.
+    """
     try:
         data = request.get_json()
 

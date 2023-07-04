@@ -12,8 +12,16 @@ WHATSAPP_CREDENTIALS = json.loads(Configurations.WHATSAPP_CREDENTIALS)
 logger = logging.getLogger(__name__)
 
 
-def get_sender_creds(creds_list, sender):
-    """"""
+def get_sender_creds(creds_list: list, sender: str) -> dict:
+    """
+    Get the credentials of the sender.
+
+    :param creds_list: list - List of credentials.
+    :param sender: str - Sender's phone number.
+
+    :return: Sender's credentials if found, else None.
+    :rtype: dict or None
+    """
     logger.debug("Finding sender's credentials ...")
 
     for credential in creds_list:
@@ -24,9 +32,15 @@ def get_sender_creds(creds_list, sender):
     return None
 
 
-def extract_metadata(data):
-    """"""
+def extract_metadata(data: dict) -> dict:
+    """
+    Extract metadata from the webhook data.
 
+    :param data: dict - Webhook data.
+
+    :return: Extracted metadata if found, else None.
+    :rtype: dict or None
+    """
     logger.debug("Extracting metadata ...")
 
     for entry in data["entry"]:
@@ -37,8 +51,17 @@ def extract_metadata(data):
     return None
 
 
-def send_text(sender, recipient, message):
-    """"""
+def send_text(sender: str, recipient: str, message: str) -> dict:
+    """
+    Send a text message.
+
+    :param sender: str - Sender's phone number.
+    :param recipient: str - Recipient's phone number.
+    :param message: str - Message content.
+
+    :return: Response from the messaging service.
+    :rtype: dict or None
+    """
     try:
         sender_creds = get_sender_creds(creds_list=WHATSAPP_CREDENTIALS, sender=sender)
 
@@ -58,8 +81,21 @@ def send_text(sender, recipient, message):
         raise error
 
 
-def send_template(sender, template, recipient, components, lang):
-    """"""
+def send_template(
+    sender: str, template: str, recipient: str, components: list, lang: str
+) -> dict:
+    """
+    Send a message using a template.
+
+    :param sender: str - Sender's phone number.
+    :param template: str - Template name.
+    :param recipient: str - Recipient's phone number.
+    :param components: list - List of message components.
+    :param lang: str - Language code.
+
+    :return: Response from the messaging service.
+    :rtype: dict or None
+    """
     try:
         sender_creds = get_sender_creds(creds_list=WHATSAPP_CREDENTIALS, sender=sender)
 
@@ -81,8 +117,15 @@ def send_template(sender, template, recipient, components, lang):
         raise error
 
 
-def receive_message(webhook_data):
-    """"""
+def receive_message(webhook_data: dict) -> dict:
+    """
+    Receive and process incoming messages from the webhook data.
+
+    :param webhook_data: dict - Webhook data.
+    
+    :return: Processed message data.
+    :rtype: dict or None
+    """
     try:
         metadata = extract_metadata(data=webhook_data)
 
