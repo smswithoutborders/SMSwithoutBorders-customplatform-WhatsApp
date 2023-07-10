@@ -111,10 +111,10 @@ def send_message(message_type):
         return res, 200
 
     except BadRequest as error:
-        return str(error), 400
+        return str(error.description), 400
 
     except NotFound as error:
-        return str(error), 404
+        return str(error.description), 404
 
     except Exception as error:
         logger.exception(error)
@@ -152,10 +152,8 @@ def receive_web_hook():
 
             res = receive_message(webhook_data=data)
 
-            print("\n", res)
-
             if not res:
-                raise NotFound("Sender Not Found")
+                raise NotFound("Recipient Not Found")
 
             return "OK", 200
 
@@ -163,10 +161,10 @@ def receive_web_hook():
         raise BadRequest()
 
     except BadRequest as error:
-        return str(error), 400
+        return str(error.description), 400
 
     except NotFound as error:
-        return str(error), 404
+        return str(error.description), 404
 
     except Exception as error:
         logger.exception(error)

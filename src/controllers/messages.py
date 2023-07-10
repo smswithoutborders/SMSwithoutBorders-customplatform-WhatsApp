@@ -26,7 +26,6 @@ def get_sender_creds(creds_list: list, sender: str) -> dict:
         logger.debug("Finding sender's credentials ...")
 
         for credential in creds_list:
-            print(credential)
             if sender in credential.values():
                 logger.info("Sender's credentials found")
                 return credential
@@ -171,24 +170,17 @@ def receive_message(webhook_data: dict) -> dict:
                 message = messenger.get_message(webhook_data)
                 message_id = messenger.get_message_id(webhook_data)
 
-                logging.debug(
-                    "New Message; sender_mobile:%s sender_name:%s message_type:%s, message: %s, message_id: %s",
-                    sender_mobile,
-                    sender_name,
-                    message_type,
-                    message,
-                    message_id,
-                )
+                logging.debug("New Message ...")
 
                 if message_type == "text":
                     return {
-                        **business_creds,
+                        "recipient_phone_number": business_creds["phone_number"],
                         "sender_name": sender_name,
-                        "sender_mobile": sender_mobile,
+                        "sender_phone_number": sender_mobile,
                         "message": message,
                         "message_id": message_id,
                     }
-                
+
         return None
 
     except Exception as error:
