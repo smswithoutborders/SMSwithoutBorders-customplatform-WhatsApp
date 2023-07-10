@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  customplatform-whatsapp:
+    restart: always
+
+    ports:
+      - "${PORT:?err}:${PORT}"
+      - "${SSL_PORT:?err}:${SSL_PORT}"
+
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: production
+
+    volumes:
+      - "${SSL_FILE_PATH:?err}:${SSL_FILE_PATH}"
+     
+    environment:
+      - HOST=${HOST:?err}
+      - PORT=${PORT:?err}
+
+      - SSL_SERVER_NAME=${SSL_SERVER_NAME:?err}
+      - SSL_PORT=${SSL_PORT:?err}
+      - SSL_CERTIFICATE=${SSL_CERTIFICATE:?err}
+      - SSL_KEY=${SSL_KEY:?err}
+      - SSL_PEM=${SSL_PEM:?err}
+
+      - WHATSAPP_CREDENTIALS=${WHATSAPP_CREDENTIALS:?err}
+      - WHATSAPP_VERIFY_TOKEN=${WHATSAPP_VERIFY_TOKEN:?err}
