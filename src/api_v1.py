@@ -113,6 +113,9 @@ def send_message(message_type):
     except BadRequest as error:
         return str(error), 400
 
+    except NotFound as error:
+        return str(error), 404
+
     except Exception as error:
         logger.exception(error)
         return "Internal Server Error", 500
@@ -161,6 +164,9 @@ def receive_web_hook():
 
     except BadRequest as error:
         return str(error), 400
+
+    except NotFound as error:
+        return str(error), 404
 
     except Exception as error:
         logger.exception(error)
