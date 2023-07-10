@@ -22,14 +22,19 @@ def get_sender_creds(creds_list: list, sender: str) -> dict:
     :return: Sender's credentials if found, else None.
     :rtype: dict or None
     """
-    logger.debug("Finding sender's credentials ...")
+    try:
+        logger.debug("Finding sender's credentials ...")
 
-    for credential in creds_list:
-        print(credential)
-        if sender in credential.values():
-            logger.info("Sender's credentials found")
-            return credential
-    return None
+        for credential in creds_list:
+            print(credential)
+            if sender in credential.values():
+                logger.info("Sender's credentials found")
+                return credential
+        return None
+
+    except Exception as error:
+        logger.error("Error getting sender's creds")
+        raise error
 
 
 def extract_metadata(data: dict) -> dict:
@@ -41,14 +46,19 @@ def extract_metadata(data: dict) -> dict:
     :return: Extracted metadata if found, else None.
     :rtype: dict or None
     """
-    logger.debug("Extracting metadata ...")
+    try:
+        logger.debug("Extracting metadata ...")
 
-    for entry in data["entry"]:
-        for change in entry["changes"]:
-            if "metadata" in change["value"]:
-                logger.info("Successfully extracted metadata")
-                return change["value"]["metadata"]
-    return None
+        for entry in data["entry"]:
+            for change in entry["changes"]:
+                if "metadata" in change["value"]:
+                    logger.info("Successfully extracted metadata")
+                    return change["value"]["metadata"]
+        return None
+
+    except Exception as error:
+        logger.error("Error extracting metadata")
+        raise error
 
 
 def send_text(sender: str, recipient: str, message: str) -> dict:
@@ -78,6 +88,7 @@ def send_text(sender: str, recipient: str, message: str) -> dict:
         return response
 
     except Exception as error:
+        logger.error("Error sending text")
         raise error
 
 
@@ -114,6 +125,7 @@ def send_template(
         return response
 
     except Exception as error:
+        logger.error("Error sending template")
         raise error
 
 
@@ -122,7 +134,7 @@ def receive_message(webhook_data: dict) -> dict:
     Receive and process incoming messages from the webhook data.
 
     :param webhook_data: dict - Webhook data.
-    
+
     :return: Processed message data.
     :rtype: dict or None
     """
@@ -176,6 +188,9 @@ def receive_message(webhook_data: dict) -> dict:
                         "message": message,
                         "message_id": message_id,
                     }
+                
+        return None
 
     except Exception as error:
+        logger.error("Error processing webhook")
         raise error

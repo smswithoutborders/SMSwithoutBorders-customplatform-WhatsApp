@@ -2,9 +2,12 @@
 
 import logging
 
-from flask import Blueprint, request
-from werkzeug.exceptions import BadRequest
+from flask import Blueprint, request, make_response
+from werkzeug.exceptions import BadRequest, NotFound
 from src.controllers.messages import send_text, send_template, receive_message
+from settings import Configurations
+
+VERIFY_TOKEN = Configurations.WHATSAPP_VERIFY_TOKEN
 
 v1 = Blueprint(name="v1", import_name=__name__, url_prefix="/v1")
 
@@ -50,6 +53,7 @@ def send_message(message_type):
     :rtype: tuple
 
     :raises BadRequest: If the required parameters are missing from the request data.
+    :raises NotFound: If the sender is not found.
     :raises Exception: If an unexpected error occurs.
     """
     try:
@@ -101,6 +105,9 @@ def send_message(message_type):
                 lang=lang,
             )
 
+        if not res:
+            raise NotFound(f"Sender '{sender}' Not Found")
+
         return res, 200
 
     except BadRequest as error:
@@ -111,25 +118,46 @@ def send_message(message_type):
         return "Internal Server Error", 500
 
 
-@v1.route(rule="/receive", methods=["POST"])
+@v1.route(rule="/receive", methods=["GET", "POST"])
 def receive_web_hook():
     """
-    Receive a webhook data.
+    Receive webhook data.
 
     :return: A tuple containing an empty response and the HTTP status code.
     :rtype: tuple
 
     :raises BadRequest: If the request data is invalid.
+    :raises NotFound: If the sender is not found.
     :raises Exception: If an unexpected error occurs.
     """
+    method = request.method.lower()
+
     try:
-        data = request.get_json()
+        if method == "get":
+            if request.args.get("hub.verify_token") == VERIFY_TOKEN:
+                logger.info("Verified webhook")
+                response = make_response(request.args.get("hub.challenge"), 200)
+                response.mimetype = "text/plain"
 
-        res = receive_message(webhook_data=data)
+                return response
 
-        print("\n", res)
+            logger.error("Webhook Verification failed")
+            return "Invalid verification token", 200
 
-        return "", 200
+        if method == "post":
+            data = request.get_json()
+
+            res = receive_message(webhook_data=data)
+
+            print("\n", res)
+
+            if not res:
+                raise NotFound("Sender Not Found")
+
+            return "OK", 200
+
+        logger.error("Unallowed method")
+        raise BadRequest()
 
     except BadRequest as error:
         return str(error), 400
