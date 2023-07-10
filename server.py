@@ -10,7 +10,6 @@ from src.api_v1 import v1
 
 HOST = Configurations.HOST
 PORT = Configurations.PORT
-ORIGINS = Configurations.ORIGINS
 
 app = Flask(__name__)
 

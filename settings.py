@@ -6,7 +6,6 @@ import os
 MODE = os.environ.get("MODE")
 HOST = os.environ.get("HOST")
 PORT = os.environ.get("PORT")
-ORIGINS = os.environ.get("ORIGINS")
 SSL_PORT = os.environ.get("SSL_PORT")
 SSL_CERTIFICATE = os.environ.get("SSL_CERTIFICATE")
 SSL_KEY = os.environ.get("SSL_KEY")
@@ -20,7 +19,6 @@ class BaseConfig:
 
     HOST = HOST
     PORT = PORT
-    ORIGINS = ORIGINS
     WHATSAPP_CREDENTIALS = WHATSAPP_CREDENTIALS
     WHATSAPP_VERIFY_TOKEN = WHATSAPP_VERIFY_TOKEN
 
