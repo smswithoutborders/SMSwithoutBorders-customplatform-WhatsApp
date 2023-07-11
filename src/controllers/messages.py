@@ -2,12 +2,14 @@
 
 import logging
 import json
+import requests
 
 from heyoo import WhatsApp
 
 from settings import Configurations
 
 WHATSAPP_CREDENTIALS = json.loads(Configurations.WHATSAPP_CREDENTIALS)
+WEBHOOK_URLS = json.loads(Configurations.WEBHOOK_URLS)
 
 logger = logging.getLogger(__name__)
 
@@ -158,8 +160,6 @@ def receive_message(webhook_data: dict) -> dict:
             phone_number_id=business_creds["phone_number_id"],
         )
 
-        logging.debug("Received webhook data: %s", webhook_data)
-
         changed_field = messenger.changed_field(webhook_data)
         if changed_field == "messages":
             new_message = messenger.get_mobile(webhook_data)
@@ -173,13 +173,25 @@ def receive_message(webhook_data: dict) -> dict:
                 logging.debug("New Message ...")
 
                 if message_type == "text":
-                    return {
+                    payload = {
                         "recipient_phone_number": business_creds["phone_number"],
                         "sender_name": sender_name,
                         "sender_phone_number": sender_mobile,
                         "message": message,
                         "message_id": message_id,
                     }
+
+                    for url in WEBHOOK_URLS:
+                        try:
+                            response = requests.post(url, json=payload, timeout=30)
+                            response.raise_for_status()
+                            logger.info("Posted message data to URL: %s", url)
+
+                        except requests.exceptions.RequestException as error:
+                            logger.error("Failed to post message data to URL: %s", url)
+                            logger.exception(error)
+
+                    return payload
 
         return None
 

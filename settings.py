@@ -12,6 +12,7 @@ SSL_KEY = os.environ.get("SSL_KEY")
 SSL_PEM = os.environ.get("SSL_PEM")
 WHATSAPP_CREDENTIALS = os.environ.get("WHATSAPP_CREDENTIALS")
 WHATSAPP_VERIFY_TOKEN = os.environ.get("WHATSAPP_VERIFY_TOKEN")
+WEBHOOK_URLS = os.environ.get("WEBHOOK_URLS")
 
 
 class BaseConfig:
@@ -21,6 +22,7 @@ class BaseConfig:
     PORT = PORT
     WHATSAPP_CREDENTIALS = WHATSAPP_CREDENTIALS
     WHATSAPP_VERIFY_TOKEN = WHATSAPP_VERIFY_TOKEN
+    WEBHOOK_URLS = WEBHOOK_URLS
 
 
 class Production(BaseConfig):
